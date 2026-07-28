@@ -19,6 +19,7 @@ class DoctorSchema(BaseModel):
     rating: str
     slots: List[str]
     status: Optional[str] = "🟢 Available"
+    daily_slots: Optional[List[dict]] = None
 
 
 class DoctorListResponse(BaseModel):

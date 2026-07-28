@@ -51,7 +51,15 @@ DOCTORS_DB: Dict[str, Dict[str, Any]] = {
         "languages": "English, Kannada, Hindi, Telugu",
         "hours": "Mon–Sat: 09:00 AM – 02:00 PM IST",
         "rating": "4.9 ⭐ (320+ verified reviews)",
-        "slots": ["10:00 AM IST", "11:30 AM IST", "01:00 PM IST"]
+        "slots": ["10:00 AM IST", "11:30 AM IST", "01:00 PM IST"],
+        "daily_slots": [
+            {"time": "09:30 AM IST", "available": True},
+            {"time": "10:30 AM IST", "available": False, "reason": "BOOKED"},
+            {"time": "11:30 AM IST", "available": True},
+            {"time": "02:00 PM IST", "available": False, "reason": "SURGERY"},
+            {"time": "04:30 PM IST", "available": True},
+            {"time": "05:30 PM IST", "available": False, "reason": "BOOKED"},
+        ]
     },
     "DOC_2": {
         "id": "DOC_2",
@@ -62,7 +70,14 @@ DOCTORS_DB: Dict[str, Dict[str, Any]] = {
         "languages": "English, Kannada, Hindi",
         "hours": "Mon–Sat: 02:30 PM – 08:30 PM IST",
         "rating": "4.95 ⭐ (285+ verified reviews)",
-        "slots": ["03:00 PM IST", "04:30 PM IST", "06:00 PM IST", "07:30 PM IST"]
+        "slots": ["03:00 PM IST", "04:30 PM IST", "06:00 PM IST", "07:30 PM IST"],
+        "daily_slots": [
+            {"time": "02:30 PM IST", "available": True},
+            {"time": "03:30 PM IST", "available": False, "reason": "BOOKED"},
+            {"time": "04:30 PM IST", "available": True},
+            {"time": "05:30 PM IST", "available": True},
+            {"time": "06:30 PM IST", "available": False, "reason": "BOOKED"},
+        ]
     },
     "DOC_3": {
         "id": "DOC_3",
@@ -73,7 +88,14 @@ DOCTORS_DB: Dict[str, Dict[str, Any]] = {
         "languages": "English, Kannada, Hindi, Tulu",
         "hours": "Mon–Sun: 10:00 AM – 06:00 PM IST",
         "rating": "4.88 ⭐ (210+ verified reviews)",
-        "slots": ["10:30 AM IST", "02:00 PM IST", "05:00 PM IST"]
+        "slots": ["10:30 AM IST", "02:00 PM IST", "05:00 PM IST"],
+        "daily_slots": [
+            {"time": "10:00 AM IST", "available": True},
+            {"time": "11:30 AM IST", "available": False, "reason": "BOOKED"},
+            {"time": "02:00 PM IST", "available": True},
+            {"time": "03:30 PM IST", "available": False, "reason": "SURGERY"},
+            {"time": "05:00 PM IST", "available": True},
+        ]
     }
 }
 

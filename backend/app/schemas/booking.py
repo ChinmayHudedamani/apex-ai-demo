@@ -22,25 +22,18 @@ class BookingCreateRequest(BaseModel):
         cleaned = value.strip()
         if not cleaned:
             raise ValueError("Patient name cannot be blank or empty.")
-        if len(cleaned) < 2:
-            raise ValueError("Patient name must be at least 2 characters long.")
+        if not re.match(r"^[a-zA-Z\s]{2,50}$", cleaned):
+            raise ValueError("Enter a valid name (letters only, min 2 characters).")
         return cleaned
 
     @field_validator("phone_number")
     @classmethod
     def validate_phone_number(cls, value: str) -> str:
-        # Strip spaces, hyphens, and optional leading +91
-        raw_digits = re.sub(r"[^\d]", "", value)
-        if value.startswith("+91") and len(raw_digits) == 12:
-            digits = raw_digits[2:]
-        elif value.startswith("91") and len(raw_digits) == 12:
-            digits = raw_digits[2:]
-        else:
-            digits = raw_digits
-
-        if not (10 <= len(digits) <= 12):
-            raise ValueError(f"Phone number must contain between 10 and 12 digits. Provided: '{value}' ({len(digits)} digits)")
-        return f"+91{digits[-10:]}"
+        cleaned = value.strip()
+        digits = cleaned[3:].strip() if cleaned.startswith("+91") else cleaned.strip()
+        if not re.match(r"^[6-9]\d{9}$", digits):
+            raise ValueError("Enter a valid 10-digit mobile number starting with 6, 7, 8, or 9.")
+        return f"+91{digits}"
 
 
 class BookingResponse(BaseModel):
