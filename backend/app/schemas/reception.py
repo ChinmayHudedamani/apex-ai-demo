@@ -8,7 +8,9 @@ ALLOWED_PAYMENT_METHODS: Set[str] = {
     "Cash",
     "UPI",
     "Credit/Debit Card",
+    "Credit / Debit Card",
     "UPI (GPay/PhonePe)",
+    "UPI (GPay / PhonePe)",
     "Credit Card",
     "Debit Card",
     "Direct Zero-Cost EMI"
@@ -34,11 +36,13 @@ class PaymentVerificationRequest(BaseModel):
     @classmethod
     def validate_payment_method(cls, value: str) -> str:
         cleaned = value.strip()
-        if cleaned not in ALLOWED_PAYMENT_METHODS:
-            raise ValueError(
-                f"Invalid payment method '{cleaned}'. Allowed options: {sorted(list(ALLOWED_PAYMENT_METHODS))}"
-            )
-        return cleaned
+        normalized = cleaned.replace(" / ", "/")
+        if cleaned in ALLOWED_PAYMENT_METHODS or normalized in ALLOWED_PAYMENT_METHODS:
+            return cleaned
+
+        raise ValueError(
+            f"Invalid payment method '{cleaned}'. Allowed options: {sorted(list(ALLOWED_PAYMENT_METHODS))}"
+        )
 
 
 class PaymentVerificationResponse(BaseModel):
