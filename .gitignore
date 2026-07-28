@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+env/
+venv/
+ENV/
+
+# Environment variables & secrets
+.env
+*.env
+
+# SQLite Databases
+*.db
+clinic_kb.db
+
+# IDE & OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
