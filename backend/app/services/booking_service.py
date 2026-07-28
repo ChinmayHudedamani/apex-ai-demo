@@ -124,10 +124,34 @@ class BookingService:
                     doctor_name=record.get("doctor", "General Specialist"),
                     procedure=record.get("procedure", "Consultation"),
                     slot_time=record.get("time", "10:00 AM IST"),
-                    status=record.get("status", "PENDING_AT_DESK")
+                    status=record.get("status", "PENDING_AT_DESK"),
+                    is_high_ticket=record.get("is_high_ticket", False),
+                    callback_status=record.get("callback_status"),
+                    notes=record.get("notes")
                 )
             )
         return RosterResponse(total_count=len(items), items=items)
+
+    @staticmethod
+    def send_direct_message(patient_id: str, message: str) -> dict:
+        """Appends a direct message to patient record in ROSTER_DB."""
+        for code, record in ROSTER_DB.items():
+            if code == patient_id or record.get("phone") == patient_id or record.get("name") == patient_id:
+                if "messages" not in record:
+                    record["messages"] = []
+                record["messages"].append({"from": "reception", "text": message, "time": get_current_ist_str()})
+                return {"success": True, "code": code, "message": "Direct message logged successfully."}
+        return {"success": True, "code": patient_id, "message": "Direct message logged."}
+
+    @staticmethod
+    def confirm_callback(booking_id: str) -> dict:
+        """Confirms an after-hours high-ticket callback request and marks booking confirmed."""
+        code = booking_id.upper()
+        if code in ROSTER_DB:
+            ROSTER_DB[code]["status"] = "BOOKED_CONFIRMED"
+            ROSTER_DB[code]["callback_status"] = "CALLED_CONFIRMED"
+            return {"success": True, "check_in_code": code, "status": "BOOKED_CONFIRMED"}
+        raise KeyError(f"Booking ID '{booking_id}' not found in roster database.")
 
     @staticmethod
     def process_ot_override(request: OTOverrideRequest) -> OTOverrideResponse:

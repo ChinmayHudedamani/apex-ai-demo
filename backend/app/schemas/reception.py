@@ -1,7 +1,7 @@
 # Copyright (c) 2026 Chinmay Hudedamani. All Rights Reserved.
 # APEX AI / Copus AI — Reception & Verification Pydantic V2 Schemas
 
-from typing import List, Set
+from typing import List, Set, Optional
 from pydantic import BaseModel, Field, field_validator, ConfigDict
 
 ALLOWED_PAYMENT_METHODS: Set[str] = {
@@ -73,9 +73,27 @@ class RosterItem(BaseModel):
     procedure: str
     slot_time: str
     status: str
+    is_high_ticket: Optional[bool] = False
+    callback_status: Optional[str] = None
+    notes: Optional[str] = None
 
 
 class RosterResponse(BaseModel):
     """Container schema for returning the active waiting room roster."""
     total_count: int
     items: List[RosterItem]
+
+
+class DirectMessageRequest(BaseModel):
+    """Payload to send a direct message from receptionist to patient."""
+    model_config = ConfigDict(str_strip_whitespace=True)
+
+    patient_id: str = Field(..., description="Check-in code or patient ID")
+    message: str = Field(..., min_length=1, description="Message text to send")
+
+
+class CallbackConfirmRequest(BaseModel):
+    """Payload to confirm an after-hours high-ticket callback request."""
+    model_config = ConfigDict(str_strip_whitespace=True)
+
+    booking_id: str = Field(..., description="Check-in code (APX-XXXX)")
