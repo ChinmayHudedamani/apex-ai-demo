@@ -1,182 +1,368 @@
-# Copyright (c) 2026 Chinmay Hudedamani. All Rights Reserved.
-# APEX AI Multi-Role Streamlit Demo Application & WhatsApp Simulator
-
 import os
-import json
+import sys
+import secrets
+from datetime import datetime
+from zoneinfo import ZoneInfo
+
+# 1. FIX PYTHON PATH
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
+
 import streamlit as st
-from dotenv import load_dotenv
-from google import genai
-from google.genai import types
 
-from app.core.config import settings
-from app.services.schemas import MIDGODentalResponse
-from app.services.llm_client import GeminiMIDGOClient
-
-load_dotenv()
-
-# ==========================================
-# 1. PAGE CONFIGURATION & STYLING
-# ==========================================
+# 2. STREAMLIT PAGE CONFIGURATION
 st.set_page_config(
-    page_title="Apex AI Clinic Demo Suite",
-    page_icon="🏥",
+    page_title="APEX AI — Copus Concierge",
+    page_icon="🤖",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-st.markdown("""
-    <style>
-    .stChatFloatingInputContainer {bottom: 20px;}
-    .metric-card {background-color: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #e9ecef;}
-    </style>
-""", unsafe_allow_html=True)
+# Indian Standard Time Helper
+IST = ZoneInfo("Asia/Kolkata")
 
-# ==========================================
-# 2. SESSION & STATE ENGINE
-# ==========================================
-if "session_db" not in st.session_state:
-    st.session_state.session_db = {
-        "name": "",
-        "symptom": "",
-        "slot_confirmed": False,
-        "confirmed_slot": None
+def get_ist_time_str() -> str:
+    return datetime.now(IST).strftime("%I:%M %p IST")
+
+def get_ist_date_str() -> str:
+    return datetime.now(IST).strftime("%d %b %Y, %I:%M %p IST")
+
+# 3. CSP-SAFE NATIVE GLASSMORPHISM STYLING (Zero External Iframes)
+CUSTOM_CSS = """
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+
+    /* Native Animated Light Background (Bulletproof on Streamlit Cloud) */
+    .stApp {
+        background: linear-gradient(135deg, #eef2f3 0%, #8e9eab 100%) !important;
+        background-attachment: fixed !important;
+        font-family: 'Plus Jakarta Sans', -apple-system, sans-serif !important;
     }
 
-if "messages" not in st.session_state:
-    st.session_state.messages = [{
-        "role": "assistant",
-        "content": (
-            "Hey there! 👋 I'm APEX AI, your clinical assistant from Apex Dental Center & Implant Institute, Koramangala. 🌿\n\n"
-            "I'm here to guide you, answer your health questions, and connect you to care when needed.\n\n"
-            "To start, may I know your primary symptom or health concern today?"
-        )
-    }]
+    /* Strict High-Contrast Dark Typography */
+    h1, h2, h3, h4, h5, h6, p, span, label, li, td, th {
+        color: #0f172a !important;
+    }
+
+    /* Glassmorphic Frosted Containers */
+    [data-testid="stChatMessage"], .glass-card {
+        background: rgba(255, 255, 255, 0.92) !important;
+        backdrop-filter: blur(16px) !important;
+        -webkit-backdrop-filter: blur(16px) !important;
+        border: 1px solid rgba(255, 255, 255, 0.6) !important;
+        border-radius: 12px !important;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05) !important;
+        padding: 16px !important;
+        margin-bottom: 12px !important;
+    }
+
+    /* WhatsApp Header Bar */
+    .wa-header {
+        background: rgba(255, 255, 255, 0.96) !important;
+        padding: 14px 20px;
+        border-radius: 12px;
+        border-left: 6px solid #075e54;
+        border-bottom: 1px solid #cbd5e1;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+        margin-bottom: 15px;
+    }
+    .wa-title {
+        font-size: 19px;
+        font-weight: 700;
+        color: #0f172a !important;
+    }
+    .wa-subtitle {
+        font-size: 13px;
+        color: #475569 !important;
+    }
+    .online-badge {
+        color: #0d9488 !important;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    /* High-Contrast Interactive Buttons */
+    .stButton > button {
+        background: #ffffff !important;
+        color: #0f172a !important;
+        border: 1.5px solid #075e54 !important;
+        border-radius: 10px !important;
+        font-weight: 700 !important;
+        font-size: 14px !important;
+        padding: 10px 18px !important;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06) !important;
+        transition: all 0.2s ease-in-out !important;
+    }
+    .stButton > button:hover {
+        background: #075e54 !important;
+        color: #ffffff !important;
+        box-shadow: 0 4px 12px rgba(7, 94, 84, 0.25) !important;
+        transform: translateY(-1px);
+    }
+
+    /* Sidebar Glassmorphism */
+    [data-testid="stSidebar"] {
+        background: rgba(255, 255, 255, 0.88) !important;
+        backdrop-filter: blur(12px) !important;
+        border-right: 1px solid #cbd5e1 !important;
+    }
+
+    /* Metric Boxes */
+    div[data-testid="stMetricValue"] {
+        font-size: 28px !important;
+        font-weight: 800 !important;
+        color: #0d9488 !important;
+    }
+
+    /* Status Badges */
+    .badge-beta {
+        background: #fff7ed;
+        border-left: 4px solid #f97316;
+        padding: 10px 14px;
+        border-radius: 8px;
+        color: #9a3412 !important;
+        font-weight: 600;
+        margin-bottom: 12px;
+    }
+    .badge-prod {
+        background: #f0fdf4;
+        border-left: 4px solid #16a34a;
+        padding: 10px 14px;
+        border-radius: 8px;
+        color: #166534 !important;
+        font-weight: 600;
+        margin-bottom: 12px;
+    }
+</style>
+"""
+st.markdown(CUSTOM_CSS, unsafe_allow_html=True)
+
+# 4. SESSION STATE INITIALIZATION
+if "active_tier" not in st.session_state:
+    st.session_state.active_tier = "🟢 Tier 1: Essential"
+
+if "chat_history" not in st.session_state:
+    st.session_state.chat_history = [
+        {
+            "sender": "assistant",
+            "text": "Hello! I am **Copus**, your AI Concierge at Kasthuri Dental Clinic.\n\nHow can I assist you with your dental care today?",
+            "time": get_ist_time_str()
+        }
+    ]
+
+if "hidden_options" not in st.session_state:
+    st.session_state.hidden_options = set()
+
+if "roster_db" not in st.session_state:
+    st.session_state.roster_db = {
+        "APX-4928": {"name": "Rahul Kumar", "phone": "+919876543210", "procedure": "Surgical Extraction", "time": "10:30 AM IST", "status": "PENDING_AT_DESK"},
+        "APX-8237": {"name": "Priya Sharma", "phone": "+919876543211", "procedure": "Root Canal (RCT)", "time": "11:30 AM IST", "status": "PENDING_AT_DESK"}
+    }
+
+# 5. SIDEBAR PITCH CONTROLLER
+st.sidebar.title("⚙️ Pitch Admin Control")
+selected_tier = st.sidebar.selectbox(
+    "Select SaaS Tier Mode:",
+    options=[
+        "🟢 Tier 1: Essential",
+        "🟡 Tier 2: Pro",
+        "🧪 Tier 2.5: Beta Testing",
+        "🔴 Tier 3: Enterprise (🚀 In Production)"
+    ],
+    index=0
+)
+
+if selected_tier != st.session_state.active_tier:
+    st.session_state.active_tier = selected_tier
+    st.rerun()
+
+if st.sidebar.button("🔄 Reset Chat Session", use_container_width=True):
+    st.session_state.chat_history = [
+        {
+            "sender": "assistant",
+            "text": "Hello! I am **Copus**, your AI Concierge at Kasthuri Dental Clinic.\n\nHow can I assist you with your dental care today?",
+            "time": get_ist_time_str()
+        }
+    ]
+    st.session_state.hidden_options = set()
+    st.rerun()
+
+with st.sidebar.expander("🔍 Session State Inspector"):
+    st.write(f"**Active Tier**: {st.session_state.active_tier}")
+    st.write(f"**Timezone**: `Asia/Kolkata` (IST)")
+    st.write(f"**Hidden Options**: {list(st.session_state.hidden_options)}")
+
+# 6. MAIN MULTI-ROLE TABS
+tab_patient, tab_doctor, tab_reception = st.tabs([
+    "💬 WhatsApp Patient View",
+    "👨‍⚕️ Doctor Command Center",
+    "👩‍💼 Receptionist Dashboard"
+])
 
 # ==========================================
-# 3. SIDEBAR: ROLE SWITCHER & STATE INSPECTOR
+# TAB 1: WHATSAPP PATIENT VIEW
 # ==========================================
-with st.sidebar:
-    st.image("https://img.icons8.com/color/96/dental-braces.png", width=64)
-    st.title("Apex AI Hub")
-    st.caption("Multi-Role Demo & State Inspector")
-    st.markdown("---")
-    
-    role = st.selectbox(
-        "Select User Persona / View",
-        ["Patient WhatsApp View", "Doctor Command Center", "Receptionist Operations Dashboard"]
-    )
-    
-    st.markdown("---")
-    st.subheader("🔍 Live State Memory")
-    st.json(st.session_state.session_db)
-    
-    st.markdown("---")
-    if st.button("🔄 Reset Patient Session"):
-        st.session_state.session_db = {"name": "", "symptom": "", "slot_confirmed": False, "confirmed_slot": None}
-        st.session_state.messages = [{
-            "role": "assistant",
-            "content": "Session reset. How can I help you with your dental care today?"
-        }]
-        st.rerun()
-
-# ==========================================
-# 4. VIEW ROUTER
-# ==========================================
-if role == "Patient WhatsApp View":
-    st.title("💬 Apex Dental — WhatsApp AI Assistant")
-    st.caption("Powered by Gemini 2.5 Flash & TrueLark MIDGO Architecture")
-
-    # Render chat history
-    for msg in st.session_state.messages:
-        with st.chat_message(msg["role"], avatar="🤖" if msg["role"] == "assistant" else "👤"):
-            st.markdown(msg["content"])
-
-    # User Input Handler
-    if user_input := st.chat_input("Type your WhatsApp message here..."):
-        st.session_state.messages.append({"role": "user", "content": user_input})
-        with st.chat_message("user", avatar="👤"):
-            st.markdown(user_input)
-
-        current_state = st.session_state.session_db
-        system_prompt = f"""
-        You are 'Apex Assistant', the highly empathetic AI receptionist at Apex Dental Center & Implant Institute, Koramangala. 
-        Your ultimate goal is to triage the symptom, gather the patient's name, and book an appointment slot. 
-        Never give up on this goal, but never sound mechanical or pushy.
-
-        CURRENT SYSTEM KNOWLEDGE OF THIS PATIENT:
-        - Name: "{current_state['name'] or 'Unknown'}"
-        - Symptom/Reason: "{current_state['symptom'] or 'Unknown'}"
-        - Slot Confirmed: {current_state['slot_confirmed']}
-
-        DENTAL OFFICE RULES & FAQ:
-        - Location: 104, 80 Feet Road, 4th Block, Koramangala (near Sony World Signal). Free basement valet parking available!
-        - Insurance: We accept all major insurances.
-        - Doctor: Dr. Chinmay Hudedamani.
-
-        CONVERSATION STYLE INSTRUCTIONS (Mixed-Initiative MIDGO Framework):
-        1. Actively listen. If the patient asks about parking, location, pricing, or medications/tablets, address it natively and reassuringly in the first sentence of your reply.
-        2. Immediately after answering their question, smoothly pivot back to collecting the missing information needed to book them.
-        3. Never use generic template phrases. Speak naturally like a human receptionist.
-        4. Keep your `patient_reply` concise (under 3 sentences) so it reads well.
+with tab_patient:
+    # Header Banner
+    st.markdown(
         """
+        <div class="wa-header">
+            <div class="wa-title">Kasthuri Dental Clinic <span class="online-badge">✔ Verified Business</span></div>
+            <div class="wa-subtitle">Copus AI Concierge • <span style="color:#0d9488; font-weight:600;">Online</span></div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
-        try:
-            ai_client = GeminiMIDGOClient()
-            result: MIDGODentalResponse = ai_client.process_turn(system_prompt, user_input)
+    # Tier Banners
+    if "Tier 2.5" in st.session_state.active_tier:
+        st.markdown('<div class="badge-beta">🧪 <b>Tier 2.5 Sandbox Active</b> — Testing Local NLM Machine Learning & Branch-and-Bound Fallback.</div>', unsafe_allow_html=True)
+    elif "Tier 3" in st.session_state.active_tier:
+        st.markdown('<div class="badge-prod">🚀 <b>Enterprise Mode Active</b> — Multi-Branch Auto-Router, TPA Insurance Desk & Gated AI Sandwich.</div>', unsafe_allow_html=True)
 
-            if result.extracted_name:
-                current_state["name"] = result.extracted_name
-            if result.extracted_symptom_or_reason:
-                current_state["symptom"] = result.extracted_symptom_or_reason
+    # Render Chat Log
+    for msg in st.session_state.chat_history:
+        with st.chat_message(msg["sender"]):
+            st.markdown(f"**{msg['text']}**" if msg["sender"] == "user" else msg["text"])
+            st.caption(f"<sub>{msg['time']}</sub>", unsafe_allow_html=True)
 
-            reply_text = result.patient_reply
+    st.divider()
 
-            if current_state["name"] and current_state["symptom"] and not current_state["slot_confirmed"]:
-                if "10:30" in user_input or "2:00" in user_input or "4:30" in user_input:
-                    current_state["slot_confirmed"] = True
-                    current_state["confirmed_slot"] = user_input
-                    reply_text = f"✅ Fantastic! Your appointment is locked in for {user_input} with Dr. Chinmay Hudedamani. Check-in code is APX-4928. We'll see you at Koramangala!"
-                else:
-                    reply_text += " We have available consultation slots tomorrow with Dr. Chinmay Hudedamani: • 10:30 AM • 02:00 PM • 04:30 PM. Which works best?"
+    # Dynamic Menu Options
+    master_options = [
+        "1. Doctor Details & Clinic Timings",
+        "2. Cost Ranges & Pricing Sheet",
+        "3. 📅 Book Appointment (Instant Lock)",
+        "4. ⭐ Patient Reviews",
+        "5. 🚨 Emergency Triage"
+    ]
 
-            st.session_state.session_db = current_state
+    if "Tier 2.5" in st.session_state.active_tier:
+        master_options.insert(3, "🩺 🧪 Guided Pre-Triage Tree (Beta)")
+        master_options.insert(4, "📋 🧪 Digital Care Cards (Beta)")
+    elif "Tier 3" in st.session_state.active_tier:
+        master_options.insert(3, "📍 Select Clinic Branch (Multi-Node)")
+        master_options.insert(4, "🏥 Cashless TPA Insurance Desk")
 
-            with st.chat_message("assistant", avatar="🤖"):
-                st.markdown(reply_text)
+    available_options = [opt for opt in master_options if opt not in st.session_state.hidden_options]
+
+    # Freeform Input for Tiers 2.5 & 3
+    if "Tier 2.5" in st.session_state.active_tier or "Tier 3" in st.session_state.active_tier:
+        user_input = st.chat_input("Ask Copus anything about appointments, costs, or symptoms...")
+        if user_input:
+            st.session_state.chat_history.append({"sender": "user", "text": user_input, "time": get_ist_time_str()})
             
-            st.session_state.messages.append({"role": "assistant", "content": reply_text})
+            if any(k in user_input.lower() for k in ["pain", "symptom", "triage", "toothache"]):
+                reply = "🩺 **Clinical Pre-Triage Assessment**: Your symptoms indicate moderate sensitivity. We recommend scheduling an evaluation with Dr. Chinmay."
+            elif any(k in user_input.lower() for k in ["insurance", "tpa", "claim", "star health"]):
+                reply = "🏥 **Cashless TPA Desk**: We support Star Health, HDFC ERGO, and ICICI Lombard. Please present your policy ID at check-in."
+            else:
+                reply = f"Thank you! I have logged your request: *\"{user_input}\"*. How else can I assist you?"
 
-        except Exception as e:
-            error_msg = f"⚠️ System notice: Encountered an exception while processing your request ({e}). Please ensure your `GEMINI_API_KEY` is configured correctly in `.env`."
-            with st.chat_message("assistant", avatar="🤖"):
-                st.markdown(error_msg)
-            st.session_state.messages.append({"role": "assistant", "content": error_msg})
+            st.session_state.chat_history.append({"sender": "assistant", "text": reply, "time": get_ist_time_str()})
+            st.rerun()
 
-elif role == "Doctor Command Center":
+    # Quick Reply Action Buttons
+    if not available_options:
+        st.info("ℹ️ All informational choices viewed. Scroll up in WhatsApp to review past details.")
+    else:
+        st.subheader("📱 Tap an option below:")
+        cols = st.columns(min(len(available_options), 3))
+        
+        for idx, option_text in enumerate(available_options):
+            col = cols[idx % min(len(available_options), 3)]
+            if col.button(option_text, key=f"btn_{idx}_{option_text}"):
+                st.session_state.chat_history.append({"sender": "user", "text": option_text, "time": get_ist_time_str()})
+
+                if "Doctor Details" in option_text:
+                    st.session_state.hidden_options.add(option_text)
+                    reply = "👨‍⚕️ **Lead Surgeon**: Dr. Chinmay Hudedamani (MDS)\n📍 **Location**: Yelahanka Node, Double Road\n🕒 **Hours**: Mon–Sat: 09:00 AM – 08:30 PM IST"
+                elif "Cost Ranges" in option_text:
+                    st.session_state.hidden_options.add(option_text)
+                    reply = "💳 **Pricing Sheet**:\n• Consultation: ₹700\n• Root Canal (RCT): ₹4,500 – ₹7,500\n• Extraction: ₹1,200 – ₹3,500"
+                elif "Book Appointment" in option_text:
+                    code = f"APX-{secrets.token_hex(2).upper()}"
+                    reply = (
+                        f"✅ **APPOINTMENT CONFIRMED!**\n\n"
+                        f"🎫 **Check-In Code**: `{code}`\n"
+                        f"📅 **Booked On**: {get_ist_date_str()}\n"
+                        f"💳 **Payment**: **Pay at Clinic Desk** upon arrival (Cash / UPI / Card)\n\n"
+                        f"Please present code `{code}` to the receptionist when you arrive."
+                    )
+                    st.session_state.roster_db[code] = {
+                        "name": "Walk-in Patient", "phone": "+919876543210", "procedure": "General Consultation", "time": get_ist_time_str(), "status": "PENDING_AT_DESK"
+                    }
+                elif "Reviews" in option_text:
+                    st.session_state.hidden_options.add(option_text)
+                    reply = "⭐ **Patient Reviews**: Rated 4.9/5 stars across 500+ verified visits."
+                elif "Emergency" in option_text:
+                    reply = "🚨 **Dental Emergency**: Call our duty surgeon immediately:\n📞 **+91 98765 43210**"
+                else:
+                    reply = f"Selected: **{option_text}**"
+
+                st.session_state.chat_history.append({"sender": "assistant", "text": reply, "time": get_ist_time_str()})
+                st.rerun()
+
+# ==========================================
+# TAB 2: DOCTOR COMMAND CENTER
+# ==========================================
+with tab_doctor:
     st.title("👨‍⚕️ Doctor Command Center")
-    st.caption("Dr. Chinmay Hudedamani — Executive Operations")
-    
-    col1, col2, col3 = st.columns(3)
-    col1.metric("Today's Appointments", "12 Patients")
-    col2.metric("Confirmed Check-Ins", "8 Patients")
-    col3.metric("Emergency Triages", "1 Patient")
+    st.caption("Dr. Chinmay Hudedamani (MDS) — Lead Dental Surgeon")
 
-    st.markdown("---")
-    st.subheader("📋 Active Patient Roster")
-    st.dataframe([
-        {"Time": "10:30 AM", "Patient": "Rahul Sharma", "Symptom": "Lower Molar Toothache", "Status": "CONFIRMED", "Code": "APX-4928"},
-        {"Time": "11:15 AM", "Patient": "Priya Nair", "Symptom": "Teeth Whitening Consult", "Status": "CHECKED_IN", "Code": "APX-8237"},
-        {"Time": "02:00 PM", "Patient": "Ananya Roy", "Symptom": "Crown Replacement", "Status": "SLOT_HELD", "Code": "APX-3912"},
-    ], use_container_width=True)
+    if "Tier 1" in st.session_state.active_tier:
+        st.warning("🔒 **Tier 2 Pro Upgrade Required**: The Doctor Command Center and OT Emergency Override tools require Tier 2, Tier 2.5, or Tier 3.")
+    else:
+        col1, col2, col3, col4 = st.columns(4)
+        col1.metric("Today's Roster", f"{len(st.session_state.roster_db)} Patients")
+        col2.metric("Confirmed Check-Ins", "2 Verified")
+        col3.metric("Emergency Priority", "1 Acute")
+        col4.metric("Revenue Protected", "₹48,500")
 
-else:
-    st.title("👩‍💼 Receptionist Dashboard")
-    st.caption("Apex Dental Koramangala — Front Desk Operations")
-    
-    st.subheader("⚡ Quick Patient Check-In Verifier")
-    checkin_code = st.text_input("Enter 6-Character Check-In Code (e.g., APX-4928)")
-    if st.button("Verify & Check-In Patient"):
-        if checkin_code.upper() == "APX-4928":
-            st.success("✅ Code APX-4928 Verified! Patient: Rahul Sharma | Slot: 10:30 AM | Dr. Chinmay Hudedamani")
-        else:
-            st.warning(f"Searching database for code '{checkin_code}'...")
+        st.divider()
+        st.subheader("🚨 Proactive OT Emergency Schedule Override")
+        with st.form("ot_override_form"):
+            affected_slot = st.selectbox("Select OT Slot to Clear", ["11:30 AM – 01:00 PM IST (Surgical)", "03:00 PM – 04:30 PM IST (Implants)"])
+            custom_reason = st.text_input("Reason for Override", "Dr. Chinmay called into urgent OT surgery")
+            submit = st.form_submit_button("⚡ Issue Proactive Reschedule Alerts")
+
+            if submit:
+                st.success(f"✅ Alerts dispatched to patients for slot '{affected_slot}'. Reason logged: '{custom_reason}'.")
+
+# ==========================================
+# TAB 3: RECEPTIONIST DASHBOARD
+# ==========================================
+with tab_reception:
+    st.title("👩‍💼 Receptionist Operations Desk")
+
+    if "Tier 1" in st.session_state.active_tier:
+        st.warning("🔒 **Tier 2 Pro Upgrade Required**: Check-In Code verification (`APX-XXXX`) and waiting room management require Tier 2, Tier 2.5, or Tier 3.")
+    else:
+        st.subheader("⚡ Offline Check-In Code & Payment Collector")
+        
+        col_in1, col_in2 = st.columns([2, 1])
+        with col_in1:
+            code_input = st.text_input("Enter Patient Check-In Code (`APX-XXXX`):", placeholder="APX-4928").strip().upper()
+        with col_in2:
+            pay_method = st.selectbox("Payment Method Collected:", ["UPI (GPay/PhonePe)", "Cash", "Credit/Debit Card"])
+
+        if st.button("Verify Arriving Patient & Collect Payment"):
+            if code_input in st.session_state.roster_db:
+                record = st.session_state.roster_db[code_input]
+                record["status"] = f"PAID_AT_DESK ({pay_method})"
+                st.success(
+                    f"✅ **CHECK-IN & PAYMENT VERIFIED!**\n\n"
+                    f"👤 **Patient**: {record['name']}\n"
+                    f"🦷 **Procedure**: {record['procedure']}\n"
+                    f"🕒 **Slot**: {record['time']}\n"
+                    f"💰 **Status**: Marked as **PAID_AT_DESK** via {pay_method}"
+                )
+            else:
+                st.error(f"❌ Code '{code_input}' not found in today's local roster cache.")
+
+        st.divider()
+        st.subheader("📋 Today's Waiting Room Roster")
+        for c_code, data in st.session_state.roster_db.items():
+            status_badge = "🟢 PAID" if "PAID" in data["status"] else "🟡 PENDING AT DESK"
+            st.write(f"**`{c_code}`** | {data['name']} | {data['procedure']} | {data['time']} | Status: `{status_badge}`")
