@@ -58,8 +58,10 @@ class BookingService:
     def create_booking(cls, request: BookingCreateRequest) -> BookingResponse:
         """Processes appointment slot lock and generates check-in ticket."""
         doc = DOCTORS_DB.get(request.doctor_id)
-        doctor_name = doc["name"] if doc else "Duty Specialist"
+        if not doc:
+            raise KeyError(f"Doctor with ID '{request.doctor_id}' does not exist.")
 
+        doctor_name = doc["name"]
         check_in_code = cls.generate_check_in_code()
         booking_time_ist = get_current_ist_date_str()
 
@@ -129,11 +131,30 @@ class BookingService:
 
     @staticmethod
     def process_ot_override(request: OTOverrideRequest) -> OTOverrideResponse:
-        """Issues proactive emergency surgical OT override alerts."""
-        msg = f"Alerts dispatched to affected patients for {request.doctor_name} ({request.affected_slot}). Reason: '{request.reason}'."
+        """Issues proactive emergency surgical OT override alerts and mutates doctor status."""
+        target_id = request.doctor_id
+        target_name = request.doctor_name
+
+        found_key = None
+        if target_id and target_id in DOCTORS_DB:
+            found_key = target_id
+        else:
+            search_term = target_id or target_name or ""
+            for key, d in DOCTORS_DB.items():
+                if key == search_term or (search_term and search_term.lower() in d["name"].lower()):
+                    found_key = key
+                    break
+
+        if found_key:
+            DOCTORS_DB[found_key]["status"] = "🔴 In Surgery / OT"
+            target_name = DOCTORS_DB[found_key]["name"]
+        else:
+            target_name = target_name or target_id or "Surgeon"
+
+        msg = f"Alerts dispatched to affected patients for {target_name} ({request.affected_slot}). Reason: '{request.reason}'."
         return OTOverrideResponse(
             success=True,
-            doctor_name=request.doctor_name,
+            doctor_name=target_name,
             affected_slot=request.affected_slot,
             alerts_dispatched=4,
             message=msg

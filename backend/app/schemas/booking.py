@@ -69,11 +69,12 @@ class OTOverrideRequest(BaseModel):
     """Request payload for issuing an emergency surgical OT override."""
     model_config = ConfigDict(str_strip_whitespace=True)
 
-    doctor_name: str = Field(..., description="Surgeon name affected by emergency override")
+    doctor_id: Optional[str] = Field(None, description="Surgeon ID (e.g. DOC_1)")
+    doctor_name: Optional[str] = Field(None, description="Surgeon name affected by emergency override")
     affected_slot: str = Field(..., description="OT Slot string to clear")
     reason: str = Field(..., description="Clinical override reason")
 
-    @field_validator("doctor_name", "affected_slot", "reason")
+    @field_validator("affected_slot", "reason")
     @classmethod
     def validate_non_empty(cls, value: str) -> str:
         cleaned = value.strip()

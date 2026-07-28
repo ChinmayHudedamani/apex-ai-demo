@@ -18,6 +18,11 @@ def create_booking(request: BookingCreateRequest) -> BookingResponse:
     """Creates appointment booking, generates un-guessable APX- check-in code, and registers in roster."""
     try:
         return BookingService.create_booking(request)
+    except KeyError as ke:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(ke).strip("'\"")
+        )
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,

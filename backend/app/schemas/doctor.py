@@ -18,6 +18,7 @@ class DoctorSchema(BaseModel):
     hours: str
     rating: str
     slots: List[str]
+    status: Optional[str] = "🟢 Available"
 
 
 class DoctorListResponse(BaseModel):
