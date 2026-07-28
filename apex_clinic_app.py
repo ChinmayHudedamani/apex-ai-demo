@@ -135,6 +135,13 @@ if user_input := st.chat_input("Type your message here..."):
     - Location: 104, 80 Feet Road, 4th Block, Koramangala (near Sony World Signal). Free basement valet parking available!
     - Insurance: We accept all major insurances.
     - Doctor: Dr. Chinmay Hudedamani.
+    - Detailed Clinical Directory & Fees:
+      • Comprehensive Diagnostic Consultation: ₹700 (includes digital RVG X-ray & intraoral camera examination)
+      • Micro-Endodontic Root Canal Treatment (RCT): ₹4,500 – ₹7,500 (Anterior ₹4,500, Molar ₹6,000–₹7,500, single-visit option available)
+      • CAD/CAM Ceramic & Zirconia Crowns: ₹6,000 – ₹12,000 (PFM 5-yr warranty ₹6,000; Monolithic German Zirconia 15-yr warranty ₹12,000)
+      • Atraumatic Extractions: ₹1,500 – ₹3,500 (Simple ₹1,500; Impacted Wisdom Surgical ₹3,500)
+      • Clear Aligners & Braces: ₹35,000 – ₹90,000 (Braces ₹35k–₹50k; Invisible US-FDA Cleared Aligners ₹60k–₹90k)
+      • Payment Transparency Guarantee: No hidden charges, full written estimate prior to treatment, pay at desk after consultation.
 
     CONVERSATION STYLE INSTRUCTIONS (Mixed-Initiative MIDGO Framework):
     1. Actively listen. If the patient asks about parking, location, pricing, or medications/tablets, address it natively and reassuringly in the first sentence of your reply.
