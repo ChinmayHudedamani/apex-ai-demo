@@ -72,6 +72,173 @@ CLINIC_LOCATION = {
     "phone": "+91 98765 43210"
 }
 
+# 4.1 CLINICALLY DETAILED PRICING & SERVICES BLOCK
+CLINICAL_SERVICES_DIRECTORY = """### 🏥 Kasthuri Dental — Clinical Services & Fee Directory
+*All treatments include painless digital local anesthesia and strict ISO-sterilization protocols.*
+
+---
+
+#### 1. 🔍 Comprehensive Diagnostic Consultation
+* **Fee**: **₹700**
+* **Duration**: 30 Minutes
+* **What's Included**:
+  * Full Intraoral Dental & Gum Health Examination
+  * High-Definition Digital RVG X-Rays (Zero-Radiation Digital Sensor)
+  * HD Intraoral Camera Imaging (See your tooth on screen)
+  * Personalized Written Treatment & Cost Estimate
+* **Best For**: Routine checkups, second opinions, initial pain evaluation.
+
+---
+
+#### 2. 🦷 Micro-Endodontic Root Canal Treatment (RCT)
+* **Fee**: **₹4,500 – ₹7,500** *(Based on tooth position)*
+  * *Anterior Tooth (Front)*: ₹4,500
+  * *Molar Tooth (Back)*: ₹6,000 – ₹7,500 (Complex Canal Navigation)
+* **Duration**: 45–60 Mins per session *(Single-Visit Option Available)*
+* **What's Included**:
+  * Computerized Apex Locator canal measurement
+  * Painless Rotary Endodontics (NiTi Flexible Files)
+  * Rubber Dam Isolation for 100% sterile procedure
+  * Temporary filling & post-treatment RVG confirmation X-ray
+* **Best For**: Severe throbbing pain, deep decay reaching the nerve, thermal sensitivity.
+
+---
+
+#### 3. 👑 CAD/CAM Ceramic & Premium Zirconia Crowns
+* **Fee**: **₹6,000 – ₹12,000** per tooth
+  * *Porcelain Fused Metal (PFM)*: ₹6,000 (5-Year Warranty)
+  * *Monolithic German Zirconia*: ₹12,000 (15-Year Card Warranty & Lifetime Breakage Guarantee)
+* **Duration**: 2 Visits (48-Hour Lab Turnaround)
+* **What's Included**:
+  * 3D Digital Intraoral Scanning (No messy traditional impressions)
+  * Custom Shade Matching with natural tooth translucency
+  * Permanent Dental Cementation & Bite Alignment Tuning
+* **Best For**: Post-RCT protection, fractured teeth, heavy chewing restoration.
+
+---
+
+#### 4. 🛠️ Atraumatic Tooth & Wisdom Extraction
+* **Fee**: **₹1,500 – ₹3,500**
+  * *Simple Tooth Extraction*: ₹1,500
+  * *Surgical / Impacted Wisdom Tooth*: ₹3,500
+* **Duration**: 30–45 Minutes
+* **What's Included**:
+  * Deep Local Nerve Block for complete pain relief
+  * Ultrasonic Bone-Preservation Technique
+  * Dissolvable Surgical Sutures (if required)
+  * Complimentary Post-Op Care & Prescription Kit
+* **Best For**: Irreparable decay, crowded teeth, impacted painful wisdom teeth.
+
+---
+
+#### 5. 🪞 Clear Aligners & Orthodontic Smile Alignment
+* **Fee**: **₹35,000 – ₹90,000**
+  * *Conventional Ceramic/Metal Braces*: ₹35,000 – ₹50,000
+  * *Invisible US-FDA Cleared Aligners*: ₹60,000 – ₹90,000
+* **Duration**: 6 to 18 Months Total Care
+* **What's Included**:
+  * 3D Simulation Preview (See your final smile before starting)
+  * Complete Set of Custom Aligner Trays
+  * All Monthly Progress Adjustments & Retainer Sets Included
+* **Best For**: Crooked teeth, gaps, overbites, discreet adult realignment.
+
+---
+
+> 💳 **Transparency Guarantee**: *No hidden charges. Full cost estimate provided prior to treatment. Flexible payment options (Cash, UPI, Credit Card, Direct Zero-Cost EMI) collected at the clinic desk after consultation.*"""
+
+CLINICAL_SERVICES_DATA = [
+    {
+        "id": "diag",
+        "title": "🔍 Comprehensive Diagnostic Consultation",
+        "badge": "Zero-Radiation Digital",
+        "badge_bg": "#0284c7",
+        "fee": "₹700",
+        "tiers": ["Standard Consultation & Examination: ₹700"],
+        "duration": "30 Minutes | Single Visit",
+        "included": [
+            "Full Intraoral Dental & Gum Health Examination",
+            "High-Definition Digital RVG X-Rays (Zero-Radiation Digital Sensor)",
+            "HD Intraoral Camera Imaging (See your tooth on screen)",
+            "Personalized Written Treatment & Cost Estimate"
+        ],
+        "indications": "Routine checkups, second opinions, initial pain evaluation."
+    },
+    {
+        "id": "rct",
+        "title": "🦷 Micro-Endodontic Root Canal Treatment (RCT)",
+        "badge": "Single-Visit Option",
+        "badge_bg": "#00875a",
+        "fee": "₹4,500 – ₹7,500",
+        "tiers": [
+            "Anterior Tooth (Front): ₹4,500",
+            "Molar Tooth (Back): ₹6,000 – ₹7,500 (Complex Canal Navigation)"
+        ],
+        "duration": "45–60 Mins per session | Single or 2-Visit Option",
+        "included": [
+            "Computerized Apex Locator canal measurement",
+            "Painless Rotary Endodontics (NiTi Flexible Files)",
+            "Rubber Dam Isolation for 100% sterile procedure",
+            "Temporary filling & post-treatment RVG confirmation X-ray"
+        ],
+        "indications": "Severe throbbing pain, deep decay reaching the nerve, thermal sensitivity."
+    },
+    {
+        "id": "crown",
+        "title": "👑 CAD/CAM Ceramic & Premium Zirconia Crowns",
+        "badge": "15-Year Warranty",
+        "badge_bg": "#7c3aed",
+        "fee": "₹6,000 – ₹12,000 per tooth",
+        "tiers": [
+            "Porcelain Fused Metal (PFM): ₹6,000 (5-Year Warranty)",
+            "Monolithic German Zirconia: ₹12,000 (15-Year Card Warranty & Lifetime Breakage Guarantee)"
+        ],
+        "duration": "2 Visits (48-Hour Lab Turnaround)",
+        "included": [
+            "3D Digital Intraoral Scanning (No messy traditional impressions)",
+            "Custom Shade Matching with natural tooth translucency",
+            "Permanent Dental Cementation & Bite Alignment Tuning"
+        ],
+        "indications": "Post-RCT protection, fractured teeth, heavy chewing restoration."
+    },
+    {
+        "id": "extraction",
+        "title": "🛠️ Atraumatic Tooth & Wisdom Extraction",
+        "badge": "Pain-Free Protocol",
+        "badge_bg": "#d97706",
+        "fee": "₹1,500 – ₹3,500",
+        "tiers": [
+            "Simple Tooth Extraction: ₹1,500",
+            "Surgical / Impacted Wisdom Tooth: ₹3,500"
+        ],
+        "duration": "30–45 Minutes | Single Session",
+        "included": [
+            "Deep Local Nerve Block for complete pain relief",
+            "Ultrasonic Bone-Preservation Technique",
+            "Dissolvable Surgical Sutures (if required)",
+            "Complimentary Post-Op Care & Prescription Kit"
+        ],
+        "indications": "Irreparable decay, crowded teeth, impacted painful wisdom teeth."
+    },
+    {
+        "id": "aligners",
+        "title": "🪞 Clear Aligners & Orthodontic Smile Alignment",
+        "badge": "US-FDA Cleared",
+        "badge_bg": "#2563eb",
+        "fee": "₹35,000 – ₹90,000",
+        "tiers": [
+            "Conventional Ceramic/Metal Braces: ₹35,000 – ₹50,000",
+            "Invisible US-FDA Cleared Aligners: ₹60,000 – ₹90,000"
+        ],
+        "duration": "6 to 18 Months Total Care",
+        "included": [
+            "3D Simulation Preview (See your final smile before starting)",
+            "Complete Set of Custom Aligner Trays",
+            "All Monthly Progress Adjustments & Retainer Sets Included"
+        ],
+        "indications": "Crooked teeth, gaps, overbites, discreet adult realignment."
+    }
+]
+
 # 5. HIGH-CONTRAST LIGHT GLASSMORPHISM STYLING
 CUSTOM_CSS = """
 <style>
@@ -135,6 +302,34 @@ CUSTOM_CSS = """
         font-size: 13px;
         font-weight: 600;
         color: #334155 !important;
+    }
+
+    .clinical-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border: 1.5px solid #cbd5e1;
+        border-radius: 14px;
+        padding: 20px;
+        margin-bottom: 16px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+    }
+    .clinical-badge {
+        display: inline-block;
+        font-size: 11px;
+        font-weight: 700;
+        padding: 3px 10px;
+        border-radius: 20px;
+        color: #ffffff;
+        margin-left: 8px;
+    }
+    .transparency-box {
+        background: #f0fdf4;
+        border: 1.5px solid #86efac;
+        border-left: 6px solid #00875a;
+        border-radius: 12px;
+        padding: 16px 20px;
+        margin-top: 20px;
+        box-shadow: 0 2px 10px rgba(0, 135, 90, 0.05);
     }
 
     .stButton > button {
@@ -290,15 +485,8 @@ with tab_patient:
 
         if col3.button("💳 Cost & Pricing Sheet"):
             st.session_state.chat_history.append({"sender": "user", "text": "Cost Ranges & Pricing", "time": get_ist_time_str()})
-            reply = (
-                "💳 **Kasthuri Dental Standard Fee Structure**:\n"
-                "• Consultation & X-Ray: ₹700\n"
-                "• Root Canal Treatment (RCT): ₹4,500 – ₹7,500\n"
-                "• Dental Crown (Zirconia/Ceramic): ₹6,000 – ₹12,000\n"
-                "• Surgical Tooth Extraction: ₹1,500 – ₹3,500\n"
-                "• Braces / Aligners: ₹35,000 – ₹90,000"
-            )
-            st.session_state.chat_history.append({"sender": "assistant", "text": reply, "time": get_ist_time_str()})
+            st.session_state.chat_history.append({"sender": "assistant", "text": CLINICAL_SERVICES_DIRECTORY, "time": get_ist_time_str()})
+            st.session_state.booking_step = "VIEW_PRICING"
             st.rerun()
 
         if col4.button("📅 Book Appointment"):
@@ -312,6 +500,54 @@ with tab_patient:
             st.session_state.chat_history.append({"sender": "user", "text": "Emergency Triage", "time": get_ist_time_str()})
             reply = "🚨 **Dental Emergency**: Call our duty surgeon directly for immediate assistance:\n📞 **+91 98765 43210**"
             st.session_state.chat_history.append({"sender": "assistant", "text": reply, "time": get_ist_time_str()})
+            st.rerun()
+
+    # --- VIEW CLINICAL SERVICES & PRICING DIRECTORY ---
+    elif st.session_state.booking_step == "VIEW_PRICING":
+        st.subheader("🏥 Clinical Services & Fee Directory")
+        st.caption("All treatments include painless digital local anesthesia and strict ISO-sterilization protocols.")
+        
+        for item in CLINICAL_SERVICES_DATA:
+            with st.expander(f"{item['title']}  •  {item['fee']}"):
+                st.markdown(
+                    f"<span class='clinical-badge' style='background-color:{item['badge_bg']};'>{item['badge']}</span>",
+                    unsafe_allow_html=True
+                )
+                st.markdown(f"**💰 Fee Range**: **{item['fee']}**")
+                st.markdown("**📋 Fee Breakdown & Tiers**:")
+                for tier in item['tiers']:
+                    st.markdown(f"  • {tier}")
+                
+                st.markdown(f"**🕒 Duration & Chair Time**: {item['duration']}")
+                
+                st.markdown("**✅ What's Included (Diagnostics & Pain Protocol)**:")
+                for inc in item['included']:
+                    st.markdown(f"  • {inc}")
+                
+                st.markdown(f"**🩺 Indications (Best For)**: {item['indications']}")
+                
+                if st.button(f"📅 Book This Procedure ({item['id'].upper()})", key=f"book_srv_{item['id']}"):
+                    st.session_state.booking_step = "SELECT_DOC"
+                    st.rerun()
+        
+        # Patient Reassurance Note
+        st.markdown(
+            """
+            <div class="transparency-box">
+                <div style="font-weight:700; font-size:15px; color:#00875a; margin-bottom:4px;">
+                    💳 Patient Payment Transparency & Guarantee
+                </div>
+                <div style="font-size:13px; color:#334155;">
+                    <b>No hidden charges.</b> Full detailed written treatment plan provided before procedure starts. Flexible payment options (Cash, UPI, Credit Card, Direct Zero-Cost EMI) collected at the clinic desk after consultation.
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+        
+        st.write("")
+        if st.button("⬅️ Back to Main Options"):
+            st.session_state.booking_step = "IDLE"
             st.rerun()
 
     # --- VIEW DOCTORS LIST ---
