@@ -15,13 +15,13 @@ import {
   createBooking
 } from "../lib/api";
 
-interface ChatMessage {
-  sender: "user" | "assistant";
-  text: string;
-  time: string;
+interface PatientConciergeProps {
+  activeTier?: string;
 }
 
-export const PatientConcierge: React.FC = () => {
+export const PatientConcierge: React.FC<PatientConciergeProps> = ({
+  activeTier = "🟡 Tier 2: Pro"
+}) => {
   const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [location, setLocation] = useState<ClinicLocation | null>(null);
   const [services, setServices] = useState<ClinicalServiceItem[]>([]);
@@ -52,6 +52,20 @@ export const PatientConcierge: React.FC = () => {
     new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) + " IST";
 
   useEffect(() => {
+  const refreshDoctors = async () => {
+    try {
+      const docsData = await fetchDoctors();
+      setDoctors(docsData);
+      if (selectedDoctor) {
+        const updated = docsData.find((d) => d.id === selectedDoctor.id);
+        if (updated) setSelectedDoctor(updated);
+      }
+    } catch {
+      // Ignore background refresh errors
+    }
+  };
+
+  useEffect(() => {
     async function loadData() {
       try {
         setLoading(true);
@@ -71,6 +85,8 @@ export const PatientConcierge: React.FC = () => {
       }
     }
     loadData();
+    const interval = setInterval(refreshDoctors, 2500);
+    return () => clearInterval(interval);
   }, []);
 
   const handleSelectDoctor = (doc: Doctor) => {
@@ -368,18 +384,52 @@ export const PatientConcierge: React.FC = () => {
             {/* Select Slot Step */}
             {bookingStep === "SELECT_SLOT" && selectedDoctor && (
               <div>
-                <h3 className="text-sm font-bold text-slate-800 mb-3">⏰ Step 2: Available Slots for {selectedDoctor.name}</h3>
-                <div className="flex flex-wrap gap-2">
-                  {selectedDoctor.slots.map((slot, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => handleSelectSlot(slot)}
-                      className="px-4 py-2 bg-white border-2 border-emerald-600 text-emerald-700 hover:bg-emerald-600 hover:text-white font-bold text-xs rounded-xl transition-all"
-                    >
-                      ⏰ {slot}
-                    </button>
-                  ))}
-                </div>
+                <h3 className="text-sm font-bold text-slate-800 mb-3">⏰ Step 2: Schedule & Slot Selection ({selectedDoctor.name})</h3>
+
+                {selectedDoctor.status?.includes("OT") || selectedDoctor.status?.includes("Surgery") ? (
+                  <div className="space-y-3">
+                    <div className="p-4 bg-rose-50 border-2 border-rose-600 rounded-xl text-xs font-bold text-rose-900 shadow-sm">
+                      🔴 SURGEON IN EMERGENCY OT: {selectedDoctor.name} is currently performing an emergency surgical procedure. Online slot booking is temporarily suspended.
+                    </div>
+                    <div className="p-3 bg-amber-50 border border-amber-300 rounded-xl text-xs text-amber-900">
+                      📞 Please call our emergency reception desk at <b>+91 98765 43210</b> for urgent triage.
+                    </div>
+                  </div>
+                ) : activeTier.includes("Tier 1") ? (
+                  <div className="space-y-3">
+                    <div className="p-4 bg-amber-50 border border-amber-300 rounded-xl text-xs text-amber-900 shadow-sm">
+                      🔒 <b>Tier 1 Essential Mode</b>: Direct online slot locking is disabled in Tier 1. Please call Reception (<b>+91 98765 43210</b>) to reserve your appointment slot.
+                    </div>
+                    <div className="p-4 bg-white border border-slate-200 rounded-xl text-xs space-y-1 text-slate-700">
+                      <div className="font-bold text-slate-900 mb-1">🕒 Read-Only Schedule Grid:</div>
+                      {selectedDoctor.slots.map((s, idx) => (
+                        <div key={idx} className="flex justify-between py-1 border-b border-slate-100">
+                          <span>Session {idx + 1} Slot:</span>
+                          <span className="font-bold text-slate-800">{s}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex flex-wrap gap-2">
+                    {selectedDoctor.slots.map((slot, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => handleSelectSlot(slot)}
+                        className="px-4 py-2 bg-white border-2 border-emerald-600 text-emerald-700 hover:bg-emerald-600 hover:text-white font-bold text-xs rounded-xl transition-all shadow-sm"
+                      >
+                        ⏰ {slot}
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                <button
+                  onClick={() => setBookingStep("SELECT_DOC")}
+                  className="mt-4 px-4 py-2 border border-slate-300 text-slate-600 font-bold text-xs rounded-lg hover:bg-slate-50"
+                >
+                  ⬅️ Choose Different Specialist
+                </button>
               </div>
             )}
 

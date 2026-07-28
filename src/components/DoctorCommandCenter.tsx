@@ -5,7 +5,13 @@ import React, { useEffect, useState } from "react";
 import { Doctor } from "../types";
 import { fetchDoctors, triggerOTOverride } from "../lib/api";
 
-export const DoctorCommandCenter: React.FC = () => {
+interface DoctorCommandCenterProps {
+  activeTier?: string;
+}
+
+export const DoctorCommandCenter: React.FC<DoctorCommandCenterProps> = ({
+  activeTier = "🟡 Tier 2: Pro"
+}) => {
   const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [selectedDoctorId, setSelectedDoctorId] = useState<string>("DOC_1");
   const [affectedSlot, setAffectedSlot] = useState<string>("11:30 AM – 01:00 PM IST");
@@ -47,6 +53,12 @@ export const DoctorCommandCenter: React.FC = () => {
         </h1>
         <p className="text-xs text-slate-500 mt-1">Lead Surgeon OT Management & Schedule Override Operations.</p>
       </div>
+
+      {activeTier.includes("Tier 1") && (
+        <div className="p-4 bg-amber-50 border-2 border-amber-400 rounded-2xl text-xs font-bold text-amber-900 mb-6 shadow-sm">
+          🔒 Tier 2 Pro Upgrade Required: Doctor OT Management and Emergency Schedule Overrides require Tier 2 Pro, Tier 2.5, or Tier 3 Enterprise.
+        </div>
+      )}
 
       {/* Metrics Row */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
@@ -116,7 +128,7 @@ export const DoctorCommandCenter: React.FC = () => {
 
           <button
             onClick={handleOTOverride}
-            disabled={submitting}
+            disabled={submitting || activeTier.includes("Tier 1")}
             className="w-full py-2.5 px-4 bg-rose-600 text-white font-bold text-xs rounded-lg hover:bg-rose-700 disabled:opacity-50 transition-all shadow-sm"
           >
             {submitting ? "Dispatching Alerts..." : "⚡ Issue Proactive Reschedule Alerts"}

@@ -5,7 +5,13 @@ import React, { useEffect, useState } from "react";
 import { RosterItem } from "../types";
 import { fetchRoster, verifyCheckin } from "../lib/api";
 
-export const ReceptionistDashboard: React.FC = () => {
+interface ReceptionistDashboardProps {
+  activeTier?: string;
+}
+
+export const ReceptionistDashboard: React.FC<ReceptionistDashboardProps> = ({
+  activeTier = "🟡 Tier 2: Pro"
+}) => {
   const [rosterItems, setRosterItems] = useState<RosterItem[]>([]);
   const [checkInCode, setCheckInCode] = useState<string>("APX-4928");
   const [paymentMethod, setPaymentMethod] = useState<string>("UPI (GPay/PhonePe)");
@@ -26,6 +32,8 @@ export const ReceptionistDashboard: React.FC = () => {
 
   useEffect(() => {
     loadRoster();
+    const interval = setInterval(loadRoster, 3000);
+    return () => clearInterval(interval);
   }, []);
 
   const handleVerify = async () => {
@@ -50,6 +58,12 @@ export const ReceptionistDashboard: React.FC = () => {
         </h1>
         <p className="text-xs text-slate-500 mt-1">Real-time desk arrival verification and payment status tracker.</p>
       </div>
+
+      {activeTier.includes("Tier 1") && (
+        <div className="p-4 bg-amber-50 border-2 border-amber-400 rounded-2xl text-xs font-bold text-amber-900 mb-6 shadow-sm">
+          🔒 Tier 2 Pro Upgrade Required: Offline check-in code verification (`APX-XXXX`) and live roster sync require Tier 2 Pro, Tier 2.5, or Tier 3 Enterprise.
+        </div>
+      )}
 
       {/* Verification Control Form */}
       <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm mb-6">
@@ -82,7 +96,7 @@ export const ReceptionistDashboard: React.FC = () => {
 
           <button
             onClick={handleVerify}
-            disabled={verifying}
+            disabled={verifying || activeTier.includes("Tier 1")}
             className="py-2.5 px-4 bg-emerald-600 text-white font-bold text-xs rounded-lg hover:bg-emerald-700 disabled:opacity-50 transition-all shadow-sm"
           >
             {verifying ? "Verifying..." : "Verify Patient & Collect Payment"}
