@@ -9,6 +9,24 @@ from typing import Dict, Any, List
 IST_TIMEZONE = ZoneInfo("Asia/Kolkata")
 
 
+class Settings:
+    PROJECT_NAME: str = "APEX AI — Copus Medical Engine"
+    API_V1_STR: str = "/api/v1"
+    TIMEZONE: ZoneInfo = ZoneInfo("Asia/Kolkata")
+
+    CLINIC_LOCATION: Dict[str, Any] = {
+        "branch": "Kasthuri Dental Clinic — Yelahanka Main Node",
+        "address": "#42, Double Road, 4th Phase, Yelahanka New Town, Bengaluru, Karnataka 560064",
+        "landmark": "Opposite BDA Complex, Near Major Unnikrishnan Road",
+        "map_url": "https://maps.google.com/?q=Yelahanka+New+Town+Bengaluru",
+        "hours": "Mon–Sat: 09:00 AM – 08:30 PM IST | Sun: 10:00 AM – 02:00 PM IST",
+        "phone": "+91 98765 43210"
+    }
+
+
+settings = Settings()
+
+
 def get_current_ist_str() -> str:
     """Returns current IST formatted time string."""
     return datetime.now(IST_TIMEZONE).strftime("%I:%M %p IST")
@@ -20,14 +38,7 @@ def get_current_ist_date_str() -> str:
 
 
 # Clinic Location & Operational Metadata
-CLINIC_LOCATION: Dict[str, str] = {
-    "branch": "Kasthuri Dental Clinic — Yelahanka Main Node",
-    "address": "#42, Double Road, 4th Phase, Yelahanka New Town, Bengaluru, Karnataka 560064",
-    "landmark": "Opposite BDA Complex, Near Major Unnikrishnan Road",
-    "map_url": "https://maps.google.com/?q=Yelahanka+New+Town+Bengaluru",
-    "hours": "Mon–Sat: 09:00 AM – 08:30 PM IST | Sun: 10:00 AM – 02:00 PM IST",
-    "phone": "+91 98765 43210"
-}
+CLINIC_LOCATION: Dict[str, str] = settings.CLINIC_LOCATION
 
 # Doctors Directory Database
 DOCTORS_DB: Dict[str, Dict[str, Any]] = {
