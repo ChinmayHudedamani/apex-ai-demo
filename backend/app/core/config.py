@@ -1,9 +1,23 @@
 # Copyright (c) 2026 Chinmay Hudedamani. All Rights Reserved.
 # APEX AI / Copus AI — Global Backend Core Configuration & Metadata
 
+import os
+from pathlib import Path
 from datetime import datetime
 from zoneinfo import ZoneInfo
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
+
+# Load .env / .env.local file if present on server side
+try:
+    from dotenv import load_dotenv
+    env_local = Path(__file__).resolve().parent.parent.parent / ".env.local"
+    env_file = Path(__file__).resolve().parent.parent.parent / ".env"
+    if env_local.exists():
+        load_dotenv(env_local)
+    elif env_file.exists():
+        load_dotenv(env_file)
+except ImportError:
+    pass
 
 # Timezone Standardization
 IST_TIMEZONE = ZoneInfo("Asia/Kolkata")
@@ -13,6 +27,13 @@ class Settings:
     PROJECT_NAME: str = "APEX AI — Copus Medical Engine"
     API_V1_STR: str = "/api/v1"
     TIMEZONE: ZoneInfo = ZoneInfo("Asia/Kolkata")
+
+    # SERVER-SIDE ONLY SECRET KEYS (Never exposed to client bundles)
+    GEMINI_API_KEY: Optional[str] = os.getenv("GEMINI_API_KEY")
+    OPENAI_API_KEY: Optional[str] = os.getenv("OPENAI_API_KEY")
+    ANTHROPIC_API_KEY: Optional[str] = os.getenv("ANTHROPIC_API_KEY")
+    JWT_SECRET_KEY: str = os.getenv("JWT_SECRET_KEY", "apex_ai_super_secret_jwt_key_2026_server_only")
+    ADMIN_API_TOKEN: str = os.getenv("ADMIN_API_TOKEN", "apex_admin_secret_token_secure")
 
     CLINIC_LOCATION: Dict[str, Any] = {
         "branch": "Kasthuri Dental Clinic — Yelahanka Main Node",

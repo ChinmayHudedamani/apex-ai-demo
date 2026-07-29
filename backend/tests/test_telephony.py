@@ -8,6 +8,12 @@ from app.main import app
 client = TestClient(app)
 
 
+@pytest.fixture(autouse=True)
+def reset_rate_limit():
+    """Resets rate limit counter before each test in telephony module."""
+    client.get("/health", headers={"X-Reset-Rate-Limit": "true"})
+
+
 def test_get_telephony_state():
     """Test fetching telephony initial state."""
     response = client.get("/api/v1/telephony/state")
